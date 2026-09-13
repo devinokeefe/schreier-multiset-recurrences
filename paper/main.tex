@@ -26,7 +26,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We study uncolored multisets $F$ of positive integers with maximum $n$
+We study uncoloured multisets $F$ of positive integers with maximum $n$
 occurring once, each smaller element occurring at most twice, and
 $|F|+r\le q\min F$, where $q\ge1$ and $0\le r<q$ are integers.
 An encoding by words over $\{0,1,2\}$ gives a finite system of equations
@@ -45,7 +45,7 @@ For an integer $n\ge1$, let
 \[
  U_n=\{1,1,2,2,\ldots,n-1,n-1,n\}.
 \]
-All multisets in this paper are uncolored: the two available copies of a
+All multisets in this paper are uncoloured: the two available copies of a
 lower label are indistinguishable. We write $F\le_{\ms}U_n$ for
 multiset containment, allowing equality, and $|F|$ for the total number
 of occurrences. For integers $q\ge1$ and $0\le r<q$, define
@@ -80,7 +80,7 @@ On the indicated ranges, respectively,
 \end{align}
 \end{theorem}
 
-Specializing the counting formula of Chu et al.\
+Specialising the counting formula of Chu et al.\
 \cite[Section~5]{CGKMTV} to multiplicity at most two gives, for $q\ge2$,
 \begin{equation}\label{eq:occupancy}
  a_q(n)=\sum_{K=1}^{2n-1}[z^{K-1}](1+z+z^2)^{\,n-\ceil{K/q}}.
@@ -350,7 +350,7 @@ $D\mid R$. Therefore $d\ge\deg D$, regardless of where the recurrence
 begins. Theorem~\ref{thm:main} attains these three bounds.
 \end{proof}
 
-\section{The specialized constructions}
+\section{The specialised constructions}
 
 \subsection{Compositions with a distinguished terminal part}
 
@@ -419,7 +419,7 @@ composition $(7)$.
 \subsection{The six maps for the strict companion}
 
 Put $B_n=\A_{2,1}(n)$, so its members satisfy $|F|<2\min F$, and write
-$A_n=\A_2(n)$. We now realize \eqref{eq:positive} by explicit multiset maps, using
+$A_n=\A_2(n)$. We now realise \eqref{eq:positive} by explicit multiset maps, using
 the last digit of the word.
 
 For $q\ge2$, $n\ge3$, and a fixed target residue $r$ and last digit $d$,
@@ -482,11 +482,11 @@ companion equations are, for $n\ge3$,
  b(n)&=b(n-1)+a_2(n-2)+b(n-2).
 \end{align*}
 
-Related colored families occur in \cite{CIMSZ}. Their distinction from
-the present multisets is already visible at small indices. At maximum three, the two-colored family satisfying
+Related coloured families occur in \cite{CIMSZ}. Their distinction from
+the present multisets is already visible at small indices. At maximum three, the two-coloured family satisfying
 $\min C\ge|C|$ has members $\{3\},\{2_1,3\},\{2_2,3\}$, whereas
-$B_3$ has members $\{3\},\{2,3\},\{2,2,3\}$. Forgetting colors
-identifies two members and misses the double occurrence. Thus equality of these counts does not arise by simply forgetting colors.
+$B_3$ has members $\{3\},\{2,3\},\{2,2,3\}$. Forgetting colours
+identifies two members and misses the double occurrence. Thus equality of these counts does not arise by simply forgetting colours.
 
 For $q=4$, the four residue series count the four margin families
 $\A_{4,r}(n)$. Partitioning their words by the first digit gives
@@ -503,14 +503,14 @@ uniqueness of its coefficient solution, the nine polynomial identities,
 and the correspondence with the three case constructions.
 The general terminal-composition theorem and the generating-function
 arguments, including minimality of the recurrence orders, are proved
-above but are outside the formalization. The supplementary material
+above but are outside the formalisation. The supplementary material
 contains the source code, a correspondence between the mathematical
 statements and Lean declarations, and instructions for reproducing
 the formal and computational checks.
 
 \paragraph{Use of artificial intelligence tools.}
 OpenAI ChatGPT and Codex were used in developing the proofs, preparing
-the Lean formalizations, and drafting and editing the manuscript.
+the Lean formalisations, and drafting and editing the manuscript.
 
 \bibliographystyle{amsplain}
 \bibliography{references}

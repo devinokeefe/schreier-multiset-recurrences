@@ -9,7 +9,7 @@ authors:
   - family-names: "O'Keefe"
     given-names: "Devin"
     affiliation: "Independent Researcher"
-version: 1.0.0
+version: 1.0.1
 date-released: '2026-09-13'
 repository-code: "https://github.com/devinokeefe/schreier-multiset-recurrences"
 license: Apache-2.0
