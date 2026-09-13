@@ -1,0 +1,517 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm,mathtools,booktabs,microtype}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={A word model for three Schreier multiset recurrences},
+  pdfauthor={Devin O'Keefe}}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\A}{\mathcal A}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\ms}{\mathrm{ms}}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\title{A word model for three Schreier multiset recurrences}
+\author{Devin O'Keefe\\\normalsize Independent Researcher}
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+We study uncolored multisets $F$ of positive integers with maximum $n$
+occurring once, each smaller element occurring at most twice, and
+$|F|+r\le q\min F$, where $q\ge1$ and $0\le r<q$ are integers.
+An encoding by words over $\{0,1,2\}$ gives a finite system of equations
+for the generating functions indexed by $r$. For $r=0$ and $q=2,3,4$,
+nine polynomial identities yield proofs of three conjectured recurrences,
+together with their initial values and ranges of validity. We also prove
+that the minimal orders of eventual homogeneous constant-coefficient
+recurrences over $\Q$ are $3,5,5$, respectively. The encoding gives a
+correspondence with restricted integer compositions, including compositions
+of $3n+2$ into parts $3,4,5$ when $q=3$ and $r=0$.
+\end{abstract}
+
+\section{The families and the three recurrences}
+
+For an integer $n\ge1$, let
+\[
+ U_n=\{1,1,2,2,\ldots,n-1,n-1,n\}.
+\]
+All multisets in this paper are uncolored: the two available copies of a
+lower label are indistinguishable. We write $F\le_{\ms}U_n$ for
+multiset containment, allowing equality, and $|F|$ for the total number
+of occurrences. For integers $q\ge1$ and $0\le r<q$, define
+\begin{equation}\label{eq:family}
+ \A_{q,r}(n)=\{F\le_{\ms}U_n:n\in F,\ |F|+r\le q\min F\},
+ \qquad a_{q,r}(n)=|\A_{q,r}(n)|.
+\end{equation}
+Every member is nonempty and has a unique occurrence of its maximum $n$.
+Set $\A_q(n)=\A_{q,0}(n)$ and $a_q(n)=a_{q,0}(n)$.
+
+Chu et al.\ \cite[p.~19]{CGKMTV} conjectured recurrence relations for the
+sequences $a_q(n)$ with $q=2,3,4$. We prove these recurrences using a
+common word encoding.
+
+\begin{theorem}\label{thm:main}
+The sequences defined by \eqref{eq:family} have the following initial values:
+\[
+\begin{array}{c|c|c}
+q&\text{initial values, starting at }n=1&\text{recurrence range}\\ \hline
+2&1,2,4&n\ge4\\
+3&1,3,6,13,31&n\ge6\\
+4&1,3,8,18,41&n\ge6.
+\end{array}
+\]
+On the indicated ranges, respectively,
+\begin{align}
+ a_2(n)&=a_2(n-1)+2a_2(n-2)+a_2(n-3),\label{eq:r2}\\
+ a_3(n)&=3a_3(n-1)-3a_3(n-2)+4a_3(n-3)
+          -2a_3(n-4)+a_3(n-5),\label{eq:r3}\\
+ a_4(n)&=3a_4(n-1)-3a_4(n-2)+3a_4(n-3)
+          +2a_4(n-4)+a_4(n-5).\label{eq:r4}
+\end{align}
+\end{theorem}
+
+Specializing the counting formula of Chu et al.\
+\cite[Section~5]{CGKMTV} to multiplicity at most two gives, for $q\ge2$,
+\begin{equation}\label{eq:occupancy}
+ a_q(n)=\sum_{K=1}^{2n-1}[z^{K-1}](1+z+z^2)^{\,n-\ceil{K/q}}.
+\end{equation}
+Indeed, at fixed cardinality $K$, all occupied labels are at least
+$\ceil{K/q}$; the positions from there to $n-1$ have multiplicities $0,1,2$,
+and one copy of $n$ is inserted. The exponent is nonnegative because
+$K\le2n-1$ and $q\ge2$. At $n=1$, the convention $(1+z+z^2)^0=1$ and
+$[z^0]1=1$ handles the zero-position case directly.
+
+The sequence in \eqref{eq:r2} is already recorded as A141015, with an
+additional initial zero, and its generating function is known
+\cite{OEIS141015}. The parent composition sequence used below for $q=3$ is
+A017818 \cite{OEIS017818}. Polynomial divisibility and extraction of periodic
+subsequences are established tools; see, in this setting,
+\cite[Section~3.2, especially Lemma~5]{CV}. Our contribution is a common
+bijection between these multisets and words, including margins and the
+maps relating the three constructions. The residue equations of this
+model give short polynomial proofs of the three recurrences.
+
+\section{A word encoding with a margin}
+
+A word means a finite ordered list $w=(d_1,\ldots,d_L)$ with
+$d_t\in\{0,1,2\}$; the empty word is allowed. Write
+\begin{equation}\label{eq:cost}
+ S(w)=\sum_{t=1}^L d_t,\qquad
+ c_{q,r}(w)=L+\floor{\frac{S(w)+r}{q}}.
+\end{equation}
+Each position records a label, whether or not that label occurs in the multiset.
+
+\begin{theorem}[Margin--word correspondence]\label{thm:encoding}
+For every $q\ge1$, $0\le r<q$, and $n\ge1$, there is a bijection
+\[
+ E_{q,r,n}:\A_{q,r}(n)\longrightarrow
+ \{w:c_{q,r}(w)=n-1\}.
+\]
+For $F$ of cardinality $K$, put $j=\floor{(K-1+r)/q}$. Its image is the
+word of multiplicities of $F$ at the consecutive labels $j+1,\ldots,n-1$.
+Conversely, a word of length $L$ and sum $S$ is decoded by putting
+$j=\floor{(S+r)/q}$, inserting $d_t$ copies of $j+t$ for $1\le t\le L$,
+and inserting one copy of $L+j+1$.
+\end{theorem}
+
+\begin{proof}
+For positive $K$ and any integer label $x$,
+\begin{equation}\label{eq:threshold}
+ K+r\le qx\quad\Longleftrightarrow\quad
+ K-1+r<qx\quad\Longleftrightarrow\quad
+ \floor{\frac{K-1+r}{q}}<x.
+\end{equation}
+Thus every member of $F$ lies above $j$, and $j<n$ because $n\in F$.
+There are $L=n-j-1$ slots below the maximum. Their digits are in
+$\{0,1,2\}$, and their sum is exactly $K-1$: nothing is lost below the
+cutoff, and precisely the unique maximum is omitted. Consequently,
+\[
+ c_{q,r}(E_{q,r,n}(F))
+   =n-j-1+\floor{\frac{K-1+r}{q}}=n-1.
+\]
+
+Now let $w$ have cost $n-1$ and set $j=\floor{(S+r)/q}$. The cost
+identity says $n=L+j+1$. The proposed lower labels $j+1,\ldots,j+L$
+are therefore positive, distinct slots below $n$, each used at most twice.
+Together with one $n$ they form a submultiset of $U_n$. Write
+\[
+ S+r=qj+u,\qquad 0\le u<q.
+\]
+The reconstructed multiset $F$ has cardinality $S+1$, and all its labels,
+including $n$, are at least $j+1$. Hence
+\[
+ |F|+r=qj+u+1\le q(j+1)\le q\min F,
+\]
+so the reconstructed multiset belongs to $\A_{q,r}(n)$.
+
+Starting with $F$, the word sum is $K-1$, so decoding recovers the same
+cutoff $j$ and every multiplicity at every lower slot, followed by its one
+maximum. Thus decoding after encoding is the identity. Starting with a
+word, the decoded cardinality is $S+1$, so re-encoding again uses the same
+$j$. Its maximum is $L+j+1$, so re-encoding reads exactly $L$ positions and
+returns each digit $d_t$, including all zeros. This proves the other
+inverse identity.
+\end{proof}
+
+The word family is finite independently of the multiset description:
+$c_{q,r}(w)\ge L$, so a word of cost $n-1$ has length at most $n-1$ and
+belongs to a set of size $1+3+\cdots+3^{n-1}$. In particular, all word counts used below are finite.
+
+At $n=1$, the only multiset is $\{1\}$ and its word is empty, since
+$1+r\le q$. For arbitrary $n$, the singleton $\{n\}$ instead gives the
+zero word of length $n-1$. At $n=2$, a word of cost one must have exactly
+one digit, which satisfies $d+r<q$. Therefore
+\begin{equation}\label{eq:n2}
+ a_{q,r}(2)=\min(3,q-r).
+\end{equation}
+These statements include $q=1$. Both initial and final zeros must be
+retained. For example, in $\A_4(4)$ the multiset $\{2,2,4\}$ gives
+$(0,2,0)$: its cutoff is zero, although its minimum is two. Removing
+either zero changes the cost and the reconstructed multiset. The term
+$K-1+r$ in the cutoff also matters when $K+r$ is divisible by $q$.
+
+\section{Residue equations and their unique solution}
+
+For a starting residue $r$ and a digit $d$, define
+\begin{equation}\label{eq:carry}
+ e=\floor{\frac{r+d}{q}},\qquad r'=(r+d)\bmod q.
+\end{equation}
+Write $dw$ and $wd$ for the words obtained by adjoining $d$ at the
+beginning and at the end of $w$, respectively. Since $r+d=qe+r'$, direct
+substitution in \eqref{eq:cost} gives
+\begin{equation}\label{eq:digit}
+ c_{q,r}(dw)=c_{q,r}(wd)
+     =1+e+c_{q,r'}(w).
+\end{equation}
+The two words have the same cost, but need not be equal.
+
+Put $C_{q,r}(N)=|\{w:c_{q,r}(w)=N\}|$ for $N\ge0$ and use
+$C_{q,r}(N)=0$ for $N<0$.
+The empty word is the unique word of cost zero. For a nonempty word
+beginning with $d$, deleting that digit reduces the cost by
+$1+\floor{(r+d)/q}$ and changes the starting residue to $(r+d)\bmod q$.
+Prepending $d$ is the inverse operation. Partitioning by the first digit
+therefore gives, for all $N\ge0$,
+\begin{equation}\label{eq:coeff}
+ C_{q,r}(N)=\mathbf1_{N=0}+
+   \sum_{d=0}^2 C_{q,(r+d)\bmod q}
+       \left(N-1-\floor{\frac{r+d}{q}}\right).
+\end{equation}
+The images for distinct first digits are disjoint, and terms with negative
+indices vanish by the stated convention.
+
+\begin{proposition}\label{prop:system}
+For fixed $q\ge1$, the series
+\[
+ G_{q,r}(x)=\sum_{n\ge1}a_{q,r}(n)x^{n-1}
+           =\sum_{N\ge0}C_{q,r}(N)x^N\quad(0\le r<q)
+\]
+are the unique solution in $\Z[[x]]^q$ of
+\begin{equation}\label{eq:system}
+ G_{q,r}=1+\sum_{d=0}^2
+ x^{\,1+\floor{(r+d)/q}}G_{q,(r+d)\bmod q}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Theorem~\ref{thm:encoding} identifies the corresponding coefficients of
+the two series. Equation~\eqref{eq:coeff} then yields the system
+\eqref{eq:system}.
+Every exponent multiplying a series on the right is at least one. Thus
+all constant coefficients equal one, and at degree $N>0$ the right side
+uses only coefficients of smaller degree. Induction on $N$ proves
+uniqueness simultaneously for all residues. It also constructs a solution
+coefficient by coefficient in the ring of formal power series.
+\end{proof}
+
+For $q\ge2$, the bounds $r<q$ and $d\le2$ imply $e\le1$. Translating
+\eqref{eq:coeff} back to positive multiset indices gives, for $n\ge3$,
+\begin{equation}\label{eq:positive}
+ a_{q,r}(n)=\sum_{d=0}^2
+ a_{q,(r+d)\bmod q}\left(n-1-\floor{\frac{r+d}{q}}\right).
+\end{equation}
+All three arguments are positive. For $q=1$ the digit $d=2$ instead gives
+a carry of two; the word correspondence and \eqref{eq:coeff} still apply,
+with the same convention for negative coefficient indices.
+
+\section{Nine polynomial identities}
+
+Let
+\begin{align*}
+ D_2&=1-x-2x^2-x^3,\\
+ D_3&=1-3x+3x^2-4x^3+2x^4-x^5,\\
+ D_4&=1-3x+3x^2-3x^3-2x^4-x^5.
+\end{align*}
+With $h=1-x+x^2$, define the numerator vectors, in residue order, by
+\begin{align*}
+ (N_{2,0},N_{2,1})&=(1+x,1),\\
+ (N_{3,0},N_{3,1},N_{3,2})&=(1,h,h^2),\\
+ (N_{4,0},N_{4,1},N_{4,2},N_{4,3})
+   &=(1+2x^2,\ 1+x^3,\ 1-x+x^2+x^3+x^4,\ 1-2x+3x^2).
+\end{align*}
+These polynomials satisfy, for each residue,
+\begin{equation}\label{eq:certificate}
+ N_{q,r}-\sum_{d=0}^2x^{\,1+\floor{(r+d)/q}}
+                 N_{q,(r+d)\bmod q}=D_q.
+\end{equation}
+For completeness, the nine rows are the following explicit identities.
+For $q=2$,
+\begin{align*}
+ (1-x-x^2)(1+x)-x&=D_2,\\
+ (1-x-x^2)-x^2(1+x)&=D_2.
+\end{align*}
+For $q=3$,
+\begin{align*}
+ (1-x)-xh-xh^2&=D_3,\\
+ (1-x)h-xh^2-x^2&=D_3,\\
+ (1-x)h^2-x^2-x^2h&=D_3.
+\end{align*}
+For $q=4$, abbreviating $N_{4,r}$ to $N_r$,
+\begin{align*}
+ (1-x)N_0-xN_1-xN_2&=D_4,\\
+ (1-x)N_1-xN_2-xN_3&=D_4,\\
+ (1-x)N_2-xN_3-x^2N_0&=D_4,\\
+ (1-x)N_3-x^2N_0-x^2N_1&=D_4.
+\end{align*}
+Each identity follows by expanding the specified polynomials in $\Z[x]$.
+
+\begin{proposition}\label{prop:gf}
+For $q=2,3,4$ and $0\le r<q$, $G_{q,r}=N_{q,r}/D_q$ as formal power
+series. In particular,
+\begin{equation}\label{eq:gf}
+ \sum_{n\ge1}a_2(n)x^{n-1}=\frac{1+x}{D_2},\qquad
+ \sum_{n\ge1}a_3(n)x^{n-1}=\frac1{D_3},\qquad
+ \sum_{n\ge1}a_4(n)x^{n-1}=\frac{1+2x^2}{D_4}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Each $D_q$ has constant coefficient one and hence has a unique inverse in
+$\Z[[x]]$: its coefficients are obtained recursively from $D_qD_q^{-1}=1$.
+Dividing \eqref{eq:certificate} by $D_q$ shows that the vector
+$(N_{q,r}/D_q)_r$ satisfies \eqref{eq:system}. Uniqueness from
+Proposition~\ref{prop:system} identifies it with the generating functions of the
+multiset counts.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Write $b_k=a_q(k+1)$, so that the series on the left of \eqref{eq:gf} is
+$\sum_{k\ge0}b_kx^k$. If $D_q=1+\sum_{i=1}^m\delta_i x^i$, comparison
+of the coefficient of $x^k$ in $D_qG_{q,0}=N_{q,0}$ gives
+\begin{equation}\label{eq:extract}
+ b_k+\sum_{i=1}^{\min(k,m)}\delta_i b_{k-i}=[x^k]N_{q,0}.
+\end{equation}
+For $q=2$, the first three equations give $b_0=1$, $b_1-1=1$, and
+$b_2-2-2=0$, hence $1,2,4$. For $q=3$, the corresponding equations give
+\[
+ b_0=1,\quad b_1=3,\quad b_2=9-3=6,\quad
+ b_3=18-9+4=13,\quad b_4=39-18+12-2=31.
+\]
+For $q=4$, the numerator coefficient two at degree two gives
+\[
+ b_0=1,\quad b_1=3,\quad b_2=9-3+2=8,\quad
+ b_3=24-9+3=18,\quad b_4=54-24+9+2=41.
+\]
+For $k\ge3$ in the first case, and $k\ge5$ in the other two cases, the
+right side of \eqref{eq:extract} vanishes and all $m$ earlier coefficients
+occur. Moving those terms to the right and putting $n=k+1$ gives exactly
+\eqref{eq:r2}--\eqref{eq:r4}, starting at $n=4,6,6$, respectively.
+\end{proof}
+
+\begin{corollary}\label{cor:minimal}
+The minimal orders of eventual homogeneous constant-coefficient recurrences
+over $\Q$ for $a_2,a_3,a_4$ are $3,5,5$, respectively.
+\end{corollary}
+
+\begin{proof}
+The fractions in \eqref{eq:gf} are reduced over $\Q[x]$. For $q=2$,
+$D_2(-1)=1$; for $q=3$, the numerator is one. For $q=4$, polynomial
+subtraction gives
+\[
+ 4D_4=(1+2x^2)(8-5x-4x^2-2x^3)-4-7x.
+\]
+A nonconstant common divisor would divide $4+7x$, but
+$1+2(-4/7)^2=81/49\ne0$, so there is none.
+Now an eventual recurrence of order $d$ gives a nonzero polynomial $R$
+of degree at most $d$, with constant coefficient one, such that
+$RG_{q,0}$ is a polynomial: every sufficiently high coefficient vanishes.
+Writing $G_{q,0}=N/D$ in reduced form, $D\mid RN$ and coprimality imply
+$D\mid R$. Therefore $d\ge\deg D$, regardless of where the recurrence
+begins. Theorem~\ref{thm:main} attains these three bounds.
+\end{proof}
+
+\section{The specialized constructions}
+
+\subsection{Compositions with a distinguished terminal part}
+
+A composition is a nonempty ordered list of positive integers with a
+specified total. The terminal part in the next statement is constrained
+differently from the other parts; this distinction explains the special
+simplicity of $q=3$.
+
+\begin{proposition}\label{prop:terminal}
+For $q\ge1$, $0\le r<q$, and $n\ge1$, the family $\A_{q,r}(n)$ is in
+bijection with the compositions of $qn+q-1-r$ whose nonterminal parts
+belong to $\{q,q+1,q+2\}$ and whose terminal part belongs to
+$\{q,q+1,\ldots,2q-1\}$.
+\end{proposition}
+
+\begin{proof}
+First apply Theorem~\ref{thm:encoding}. For its word $w=(d_1,\ldots,d_L)$,
+put $S=S(w)$ and $u=(S+r)\bmod q$. Send it to
+\begin{equation}\label{eq:composition}
+ (q+d_1,\ldots,q+d_L,\ 2q-1-u).
+\end{equation}
+The final part is in the stated range. With $S+r=qj+u$ and
+$L+j=n-1$, its total is
+$qL+S+2q-1-u=qn+q-1-r$.
+
+To prove surjectivity and the inverse identity, take any composition of
+that total satisfying the two part restrictions. Let $\ell$ be its
+length and $t$ its final part. All parts are at least $q$, and the total
+is less than $q(n+1)$, so $1\le\ell\le n$. Subtract $q$ from the
+$\ell-1$ nonterminal parts to obtain a ternary word $w$. The total
+identity rearranges to
+\[
+ S(w)+r=q(n-\ell)+(2q-1-t).
+\]
+Here $0\le2q-1-t<q$. Thus $\floor{(S(w)+r)/q}=n-\ell$, and the word
+has cost $(\ell-1)+(n-\ell)=n-1$. Its remainder is $2q-1-t$, so
+\eqref{eq:composition} recovers the given terminal part as well as every
+nonterminal part. Conversely, subtracting $q$ after the forward map
+recovers each original digit. These maps are therefore inverse bijections
+between words of cost $n-1$ and the stated compositions. Composing with
+the bijection in Theorem~\ref{thm:encoding} proves the result.
+\end{proof}
+
+\begin{corollary}\label{cor:q3}
+For every $n\ge1$, $\A_3(n)$ is in bijection with all compositions of
+$3n+2$ into parts $3,4,5$.
+\end{corollary}
+
+\begin{proof}
+For $q=3,r=0$, the terminal and nonterminal alphabets in
+Proposition~\ref{prop:terminal} are both $\{3,4,5\}$.
+\end{proof}
+For a multiset of cardinality $K$, the final part is exactly
+$5-((K-1)\bmod3)$. At $n=2$, the correspondence is
+\[
+ \{2\}\longleftrightarrow(3,5),\qquad
+ \{1,2\}\longleftrightarrow(4,4),\qquad
+ \{1,1,2\}\longleftrightarrow(5,3).
+\]
+Thus $a_3(n)$ is the term of A017818 at index $3n+2$ \cite{OEIS017818}.
+For other values of $q$, the two part restrictions need not coincide: for $q=2$ the
+terminal alphabet is $\{2,3\}$ rather than $\{2,3,4\}$; for $q=4$ it is
+$\{4,5,6,7\}$ rather than $\{4,5,6\}$. Already $q=4,n=1$ gives the
+composition $(7)$.
+
+\subsection{The six maps for the strict companion}
+
+Put $B_n=\A_{2,1}(n)$, so its members satisfy $|F|<2\min F$, and write
+$A_n=\A_2(n)$. We now realize \eqref{eq:positive} by explicit multiset maps, using
+the last digit of the word.
+
+For $q\ge2$, $n\ge3$, and a fixed target residue $r$ and last digit $d$,
+let $e,r'$ be as in \eqref{eq:carry}, and put $n'=n-1-e$. From a source
+$F\in\A_{q,r'}(n')$, define
+\begin{equation}\label{eq:transport}
+ T_{r,d}(F)=\sigma^e(F\setminus\{n'\})
+                \uplus d\{n-1\}\uplus\{n\},
+\end{equation}
+where $\sigma^e$ adds $e$ to every label, the deletion removes one
+occurrence, and $d\{n-1\}$ denotes $d$ copies. The source maximum is
+unique, so it is completely removed before shifting.
+
+\begin{proposition}\label{prop:maps}
+The map \eqref{eq:transport} is a bijection onto the part of
+$\A_{q,r}(n)$ with multiplicity $d$ at $n-1$. Under the word
+correspondences it is $w\mapsto wd$.
+\end{proposition}
+
+\begin{proof}
+Let $K=|F|$ and $j'=\floor{(K-1+r')/q}$. The target has cardinality
+$K+d$, and its cutoff computed by the encoding formula is
+\[
+ \floor{\frac{K+d-1+r}{q}}
+   =e+\floor{\frac{K-1+r'}q}=e+j'.
+\]
+Every lower source slot shifts by $e$ and retains its digit. Its last
+possible label is $n'-1+e=n-2$, so the new slot at $n-1$ has exactly
+$d$ occurrences, followed by the unique maximum $n$. Equivalently,
+\eqref{eq:transport} is the decoding of the source word with $d$
+appended. Equation~\eqref{eq:digit} makes its cost $n-1$, so the decoder
+proves admissibility as well.
+
+Conversely, a target of cost $n-1>0$ has a nonempty word; its last slot is
+at $n-1$, so its last digit is exactly that multiplicity. Removing $d$
+leaves a word of cost $n-2-e=n'-1$. Theorem~\ref{thm:encoding} decodes
+it to a unique member of the specified source family. Appending and
+removing this digit are inverse operations, proving the assertion.
+\end{proof}
+
+For $q=2$, Proposition~\ref{prop:maps} gives the six restricted maps in
+one table. Its entries are source families, for each prescribed target
+multiplicity at $n-1$:
+\[
+\begin{array}{c|ccc}
+\text{target}&d=0&d=1&d=2\\ \hline
+ A_n&A_{n-1}&B_{n-1}&A_{n-2}\\
+ B_n&B_{n-1}&A_{n-2}&B_{n-2}.
+\end{array}
+\]
+For $d=0$ the operation replaces the old maximum by $n$. In the
+one-copy relaxed case it is $F\mapsto F\uplus\{n\}$; in the one-copy
+strict case it is $F\mapsto\sigma F\uplus\{n\}$. Both two-copy cases
+are $F\mapsto\sigma F\uplus\{n-1\}\uplus\{n\}$. These equal
+\eqref{eq:transport} because the shifted source maximum contributes the
+first copy of $n-1$. In particular, writing $b(n)=|B_n|$, the two
+companion equations are, for $n\ge3$,
+\begin{align*}
+ a_2(n)&=a_2(n-1)+b(n-1)+a_2(n-2),\\
+ b(n)&=b(n-1)+a_2(n-2)+b(n-2).
+\end{align*}
+
+Related colored families occur in \cite{CIMSZ}. Their distinction from
+the present multisets is already visible at small indices. At maximum three, the two-colored family satisfying
+$\min C\ge|C|$ has members $\{3\},\{2_1,3\},\{2_2,3\}$, whereas
+$B_3$ has members $\{3\},\{2,3\},\{2,2,3\}$. Forgetting colors
+identifies two members and misses the double occurrence. Thus equality of these counts does not arise by simply forgetting colors.
+
+For $q=4$, the four residue series count the four margin families
+$\A_{4,r}(n)$. Partitioning their words by the first digit gives
+\eqref{eq:system}; adjoining a last digit gives the maps
+\eqref{eq:transport}. These constructions have the same cost equations,
+but in general give different words and different multisets.
+
+\section*{Formal verification}
+
+Formal proofs of Theorems~\ref{thm:main} and~\ref{thm:encoding} accompany
+this paper in Lean~4 \cite{Lean4}, using the mathematical library mathlib
+\cite{Mathlib}. The development also verifies the finite residue partition,
+uniqueness of its coefficient solution, the nine polynomial identities,
+and the correspondence with the three case constructions.
+The general terminal-composition theorem and the generating-function
+arguments, including minimality of the recurrence orders, are proved
+above but are outside the formalization. The supplementary material
+contains the source code, a correspondence between the mathematical
+statements and Lean declarations, and instructions for reproducing
+the formal and computational checks.
+
+\paragraph{Use of artificial intelligence tools.}
+OpenAI ChatGPT and Codex were used in developing the proofs, preparing
+the Lean formalizations, and drafting and editing the manuscript.
+
+\bibliographystyle{amsplain}
+\bibliography{references}
+\end{document}

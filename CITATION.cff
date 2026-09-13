@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: >-
+  Please cite the paper for the mathematical results. When using the Lean
+  formalization or computational checks, also identify the repository version
+  or commit that you used.
+type: software
+title: "A word model for three Schreier multiset recurrences: supporting code"
+authors:
+  - family-names: "O'Keefe"
+    given-names: "Devin"
+    affiliation: "Independent Researcher"
+version: 1.0.0
+date-released: '2026-09-13'
+repository-code: "https://github.com/devinokeefe/schreier-multiset-recurrences"
+license: Apache-2.0
+keywords:
+  - Schreier multisets
+  - linear recurrences
+  - enumerative combinatorics
+  - Lean 4
+  - formal verification
+preferred-citation:
+  type: unpublished
+  title: "A word model for three Schreier multiset recurrences"
+  authors:
+    - family-names: "O'Keefe"
+      given-names: "Devin"
+      affiliation: "Independent Researcher"
+  year: 2026
+  notes: "Preprint. The paper is licensed under CC BY 4.0."

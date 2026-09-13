@@ -1,0 +1,91 @@
+name: Validate paper and proofs
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      PYTHONUTF8: '1'
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Check source inventory
+        run: python scripts/validate.py sources
+
+      - name: Set up Lean
+        uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596 # v1.6.0
+        with:
+          lake-package-directory: formal/common
+          auto-config: 'false'
+          build: 'false'
+          test: 'false'
+          lint: 'false'
+          use-mathlib-cache: 'false'
+          use-github-cache: 'false'
+
+      - name: Install TeX and PDF tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends latexmk texlive-latex-extra texlive-fonts-recommended lmodern poppler-utils
+
+      - name: Fetch pinned dependencies and upstream cache
+        run: python scripts/validate.py deps
+
+      - name: Validate mathematics, Lean proofs, and paper
+        run: python scripts/validate.py all
+
+      - name: Package the validated build
+        shell: python
+        run: |
+          from pathlib import Path
+          import subprocess
+          import sys
+
+          reports = list(Path('.build').glob('all-*/validation.json'))
+          if len(reports) != 1:
+              raise SystemExit('Expected exactly one complete validation report')
+          report = str(reports[0])
+          subprocess.run([
+              sys.executable, 'scripts/release.py',
+              '--lean-report', report, '--math-report', report,
+              '--paper-report', report,
+          ], check=True)
+
+      - name: Upload build results and logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: schreier-build-${{ github.sha }}
+          path: |
+            dist/main.pdf
+            dist/schreier-release.zip
+            .build/*/validation.json
+            .build/*/*.log
+            .build/*/math.json
+            .build/*/cache-before.json
+            .build/*/cache-after.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 30
