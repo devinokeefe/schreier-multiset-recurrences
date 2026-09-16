@@ -44,6 +44,17 @@ theorem shifted_unshifted (q : ℕ) (p : List ℕ)
       rw [Nat.mod_eq_of_lt (by omega)]
       omega
 
+theorem unshifted_shifted (q : ℕ) (w : Word) :
+    (w.map (fun d => q + d.val)).map (digitOfPart q) = w := by
+  induction w with
+  | nil => rfl
+  | cons d w ih =>
+      simp only [List.map_cons, ih]
+      congr 1
+      apply Fin.ext
+      change (q + d.val - q) % 3 = d.val
+      simpa using Nat.mod_eq_of_lt d.isLt
+
 theorem append_last_injective {α : Type*} {p s : List α} {t u : α}
     (h : p ++ [t] = s ++ [u]) : p = s ∧ t = u := by
   have hr := congrArg List.reverse h
@@ -56,10 +67,8 @@ theorem terminalComposition_injective (q r : ℕ) :
     Function.Injective (terminalComposition q r) := by
   intro u v h
   have hm := (append_last_injective h).1
-  apply List.map_injective (f := fun d : Fin 3 => q + d.val) _ hm
-  intro a b hab
-  apply Fin.ext
-  omega
+  have hi := congrArg (List.map (digitOfPart q)) hm
+  simpa only [unshifted_shifted] using hi
 
 /-- Every encoded word has exactly the required total and part restrictions. -/
 theorem terminalComposition_mem (q r N : ℕ) (hq : 0 < q) (hr : r < q)
@@ -77,13 +86,13 @@ theorem terminalComposition_mem (q r N : ℕ) (hq : 0 < q) (hr : r < q)
   · omega
   · omega
   · rw [shifted_sum]
-    dsimp [u] at *
     have hp := congrArg (q * ·) hc
-    have hb : r + 1 ≤ q := by omega
-    nlinarith [Nat.sub_add_cancel (show u ≤ 2 * q - 1 by omega),
-      Nat.sub_add_cancel (show 1 ≤ 2 * q by omega),
-      Nat.sub_add_cancel (show 1 ≤ q * (N + 1) + q by nlinarith),
-      Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 by nlinarith)]
+    have huadd := Nat.sub_add_cancel (show u ≤ 2 * q - 1 by omega)
+    have hqadd := Nat.sub_add_cancel (show 1 ≤ 2 * q by omega)
+    have hsum1 := Nat.sub_add_cancel (show 1 ≤ q * (N + 1) + q by omega)
+    have hsum2 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 by omega)
+    dsimp [u] at *
+    nlinarith
 
 /-- Every permitted composition is obtained from a word of the specified cost. -/
 theorem terminalComposition_surjective (q r N : ℕ) (hq : 0 < q) (hr : r < q)
@@ -104,9 +113,11 @@ theorem terminalComposition_surjective (q r N : ℕ) (hq : 0 < q) (hr : r < q)
   have hu : u < q := by dsimp [u]; omega
   have hdecomp : weight w + r = q * (N - w.length) + u := by
     have hsub := Nat.sub_add_cancel hL
+    have hmul := congrArg (q * ·) hsub
     have htadd := Nat.sub_add_cancel (show t ≤ 2 * q - 1 by omega)
-    have hsum1 := Nat.sub_add_cancel (show 1 ≤ q * (N + 1) + q by nlinarith)
-    have hsum2 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 by nlinarith)
+    have hqadd := Nat.sub_add_cancel (show 1 ≤ 2 * q by omega)
+    have hsum1 := Nat.sub_add_cancel (show 1 ≤ q * (N + 1) + q by omega)
+    have hsum2 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 by omega)
     dsimp [u]
     nlinarith
   have hdiv : (weight w + r) / q = N - w.length := by
