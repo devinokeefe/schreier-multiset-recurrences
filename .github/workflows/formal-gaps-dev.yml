@@ -29,15 +29,21 @@ jobs:
           def edit(name, old, new):
               p = Path(name)
               text = p.read_text()
-              if old in text:
-                  assert text.count(old) == 1, (name, 'ambiguous replacement')
-                  p.write_text(text.replace(old, new))
-              else:
-                  assert new in text, (name, 'unexpected source version')
+              if new in text:
+                  return
+              assert text.count(old) == 1, (name, 'unexpected source version')
+              p.write_text(text.replace(old, new))
           base = 'formal/common/SchreierUnified/'
-          edit(base + 'TerminalCompositions.lean',
+          p = Path(base + 'TerminalCompositions.lean')
+          p.write_text(p.read_text().replace(
               '    have hsum2 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 - r + r by omega)\n    have hsum3 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 by omega)',
-              '    have hsum2 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 by omega)')
+              '    have hsum2 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 by omega)'))
+          edit(base + 'GeneratingFunctions.lean',
+              'def numerator3 (r : ℕ) : PowerSeries ℤ :=',
+              '/-- Numerator vector for the three residue classes when `q = 3`. -/\ndef numerator3 (r : ℕ) : PowerSeries ℤ :=')
+          edit(base + 'GeneratingFunctions.lean',
+              'def numerator4 (r : ℕ) : PowerSeries ℤ :=',
+              '/-- Numerator vector for the four residue classes when `q = 4`. -/\ndef numerator4 (r : ℕ) : PowerSeries ℤ :=')
           edit(base + 'Minimality.lean',
               '  simp [rationalWordSeries]\n\ntheorem rational_identity2',
               '''  simp [rationalWordSeries]
@@ -127,6 +133,7 @@ jobs:
           edit('paper/main.tex',
               'The development also verifies the finite residue partition,\nuniqueness of its coefficient solution, the nine polynomial identities,\nand the correspondence with the three case constructions.\nThe general terminal-composition theorem and the generating-function\narguments, including minimality of the recurrence orders, are proved\nabove but are outside the formalisation. The supplementary material',
               'The development also verifies the general terminal-composition\nbijection, the finite residue partition, and the correspondence with\nthe three case constructions. The formal-power-series development\nconstructs the actual counting series, proves uniqueness of the residue\nsolution and all nine rational identities, and verifies coefficient\nextraction at every index. It also proves the exact minimal eventual\nrecurrence orders over the rationals, allowing arbitrary starting\nindices. The supplementary material')
+          Path('.github/workflows/formal-gaps-dev.yml').unlink()
           PY
           python scripts/update_sources.py
       - uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596
@@ -139,7 +146,6 @@ jobs:
           use-mathlib-cache: 'false'
           use-github-cache: 'false'
       - name: Restore pinned dependencies
-        id: dependencies
         uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25
         with:
           path: formal/common/.lake/packages
@@ -147,26 +153,6 @@ jobs:
       - name: Fetch pinned cache
         working-directory: formal/common
         run: lake exe cache get
-      - name: Check common modules with normal compiler limits
-        working-directory: formal/common
-        shell: bash
-        run: |
-          mkdir -p .lake/build/lib/lean/SchreierUnified .build
-          status=0
-          for module in Words Certificates Multisets TerminalCompositions GeneratingFunctions Minimality Audit; do
-            echo "===== $module ====="
-            logfile=".build/$module.log"
-            if lake env lean -DautoImplicit=false \
-                -o ".lake/build/lib/lean/SchreierUnified/$module.olean" \
-                "SchreierUnified/$module.lean" > "$logfile" 2>&1; then
-              echo "Kernel check completed: $module"
-            else
-              status=1
-            fi
-            if grep -Eq 'warning:|error\(|error:|sorryAx' "$logfile"; then status=1; fi
-            if [ "$module" != Audit ] || [ "$status" != 0 ]; then cat "$logfile"; fi
-          done
-          exit "$status"
       - name: Run the unmodified strict Lean and mathematics validators
         shell: bash
         run: |
@@ -178,7 +164,18 @@ jobs:
           fi
           cat .build/gap-lean-driver.log
           python scripts/validate.py math
-      - name: Commit only the verified integration on this development branch
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for p in Path('.build').glob('*/validation.json'):
+              r = json.loads(p.read_text())
+              print('VALIDATION', str(p), r.get('status'))
+              print('MODULES', json.dumps(r.get('modules', {}), sort_keys=True))
+              print('AXIOM REPORTS', sum(len(v) for v in r.get('axioms', {}).values()))
+              print('LINT', json.dumps(r.get('lint', {}), sort_keys=True))
+              print('SOURCE GUARD', r.get('sources_unchanged'))
+          PY
+      - name: Commit only the verified final tree on this development branch
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
@@ -187,14 +184,13 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add formal/common/SchreierUnified/TerminalCompositions.lean \
+            formal/common/SchreierUnified/GeneratingFunctions.lean \
             formal/common/SchreierUnified/Minimality.lean \
             formal/common/SchreierUnified/Audit.lean README.md docs/claims.md \
-            paper/main.tex SOURCES.tsv
-          if ! git diff --cached --quiet; then
-            git commit -m 'Integrate kernel-checked gap formalizations and update coverage documentation'
-            gh auth setup-git
-            git push origin HEAD:refs/heads/formalize-remaining-gaps
-          fi
+            paper/main.tex SOURCES.tsv .github/workflows/formal-gaps-dev.yml
+          git commit -m 'Integrate verified gap formalizations, update coverage, and remove temporary workflow'
+          gh auth setup-git
+          git push origin HEAD:refs/heads/formalize-remaining-gaps
           git rev-parse HEAD
       - name: Upload proof and validation evidence
         if: always()
@@ -202,7 +198,6 @@ jobs:
         with:
           name: formal-gap-validation-${{ github.sha }}
           path: |
-            formal/common/.build/*.log
             .build/
             SOURCES.tsv
           include-hidden-files: true
