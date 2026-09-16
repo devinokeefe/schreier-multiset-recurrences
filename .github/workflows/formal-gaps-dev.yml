@@ -32,6 +32,7 @@ jobs:
           use-mathlib-cache: 'false'
           use-github-cache: 'false'
       - name: Restore pinned dependencies
+        id: dependencies
         uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25
         with:
           path: formal/common/.lake/packages
@@ -41,21 +42,30 @@ jobs:
         run: lake exe cache get
       - name: Check all common modules with the Lean kernel
         working-directory: formal/common
+        shell: bash
         run: |
           mkdir -p .lake/build/lib/lean/SchreierUnified .build
           status=0
           for module in Words Certificates Multisets TerminalCompositions GeneratingFunctions Minimality Audit; do
             echo "===== $module ====="
-            if ! lake env lean -DautoImplicit=false -DmaxHeartbeats=3000000 -DmaxRecDepth=4096 \
+            logfile=".build/$module.log"
+            if lake env lean -DautoImplicit=false \
                 -o ".lake/build/lib/lean/SchreierUnified/$module.olean" \
-                "SchreierUnified/$module.lean" 2>&1 | tee ".build/$module.log"; then
+                "SchreierUnified/$module.lean" > "$logfile" 2>&1; then
+              echo "Kernel check completed: $module"
+            else
+              cat "$logfile"
               status=1
             fi
+            if grep -E 'warning:|error\(|error:|sorryAx' "$logfile"; then
+              cat "$logfile"
+              status=1
+            fi
+            if [ "$module" != Audit ]; then cat "$logfile"; fi
           done
-          if grep -R 'sorryAx' .build/*.log; then status=1; fi
           exit "$status"
       - name: Save pinned dependencies
-        if: always()
+        if: always() && steps.dependencies.outputs.cache-hit != 'true'
         uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25
         with:
           path: formal/common/.lake/packages
@@ -66,4 +76,5 @@ jobs:
         with:
           name: formal-gap-checks-${{ github.sha }}
           path: formal/common/.build/*.log
+          include-hidden-files: true
           retention-days: 14
