@@ -96,9 +96,11 @@ theorem denominator_mul_wordSeries (q : ℕ) (hq : 0 < q)
 /-- Numerator vectors, indexed by natural residues; values outside the range are unused. -/
 def numerator2 (r : ℕ) : PowerSeries ℤ := if r = 0 then 1 + X else 1
 
+/-- Numerator vector for the three residue classes when `q = 3`. -/
 def numerator3 (r : ℕ) : PowerSeries ℤ :=
   if r = 0 then 1 else if r = 1 then H X else (H X) ^ 2
 
+/-- Numerator vector for the four residue classes when `q = 4`. -/
 def numerator4 (r : ℕ) : PowerSeries ℤ :=
   if r = 0 then N40 X else if r = 1 then N41 X else if r = 2 then N42 X else N43 X
 

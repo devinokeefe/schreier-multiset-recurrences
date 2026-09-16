@@ -149,26 +149,27 @@ def rationalWordSeries (q : ℕ) : PowerSeries ℚ :=
     PowerSeries.coeff n (rationalWordSeries q) = (wordCount q 0 n : ℚ) := by
   simp [rationalWordSeries]
 
+private theorem polynomial_coe_ofNat (n : ℕ) [Nat.AtLeastTwo n] :
+    ((ofNat(n) : Polynomial ℚ) : PowerSeries ℚ) = (ofNat(n) : PowerSeries ℚ) :=
+  map_ofNat Polynomial.coeToPowerSeries.ringHom n
+
 theorem rational_identity2 :
     ((D2 Polynomial.X : Polynomial ℚ) : PowerSeries ℚ) * rationalWordSeries 2 =
       ((1 + Polynomial.X : Polynomial ℚ) : PowerSeries ℚ) := by
   have h := congrArg (PowerSeries.map (Int.castRingHom ℚ)) D2_mul_wordSeries
-  norm_num [rationalWordSeries, D2] at h ⊢
-  exact h
+  simpa [rationalWordSeries, D2, map_ofNat, polynomial_coe_ofNat] using h
 
 theorem rational_identity3 :
     ((D3 Polynomial.X : Polynomial ℚ) : PowerSeries ℚ) * rationalWordSeries 3 =
       ((1 : Polynomial ℚ) : PowerSeries ℚ) := by
   have h := congrArg (PowerSeries.map (Int.castRingHom ℚ)) D3_mul_wordSeries
-  norm_num [rationalWordSeries, D3] at h ⊢
-  exact h
+  simpa [rationalWordSeries, D3, map_ofNat, polynomial_coe_ofNat] using h
 
 theorem rational_identity4 :
     ((D4 Polynomial.X : Polynomial ℚ) : PowerSeries ℚ) * rationalWordSeries 4 =
       ((N40 Polynomial.X : Polynomial ℚ) : PowerSeries ℚ) := by
   have h := congrArg (PowerSeries.map (Int.castRingHom ℚ)) D4_mul_wordSeries
-  norm_num [rationalWordSeries, D4, N40] at h ⊢
-  exact h
+  simpa [rationalWordSeries, D4, N40, map_ofNat, polynomial_coe_ofNat] using h
 
 /-- Explicit coprimality certificate for q = 2. -/
 theorem bezout2 :
@@ -193,7 +194,7 @@ theorem bezout4 :
       ((1/81 : ℚ) • (56 * Polynomial.X - 32)) * D4 Polynomial.X = 1 := by
   rw [smul_mul_assoc, smul_mul_assoc, ← smul_add, bezout4_integral]
   have h81 : (81 : Polynomial ℚ) = (81 : ℚ) • (1 : Polynomial ℚ) := by
-    norm_num [Polynomial.smul_eq_C_mul]
+    simp [Polynomial.smul_eq_C_mul, map_ofNat]
   rw [h81, smul_smul]
   norm_num
 

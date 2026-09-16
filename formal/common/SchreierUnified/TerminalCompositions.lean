@@ -90,8 +90,7 @@ theorem terminalComposition_mem (q r N : ℕ) (hq : 0 < q) (hr : r < q)
     have huadd := Nat.sub_add_cancel (show u ≤ 2 * q - 1 by omega)
     have hqadd := Nat.sub_add_cancel (show 1 ≤ 2 * q by omega)
     have hsum1 := Nat.sub_add_cancel (show 1 ≤ q * (N + 1) + q by omega)
-    have hsum2 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 - r + r by omega)
-    have hsum3 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 by omega)
+    have hsum2 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 by omega)
     dsimp [u] at *
     nlinarith
 

@@ -1,5 +1,7 @@
 import SchreierUnified.Multisets
 import SchreierUnified.Certificates
+import SchreierUnified.TerminalCompositions
+import SchreierUnified.Minimality
 
 -- Run this file, not an excerpt: the output records types and transitive axioms.
 set_option autoImplicit false
@@ -58,3 +60,34 @@ set_option pp.deepTerms true
 #print axioms SchreierUnified.cost_append
 #print axioms SchreierUnified.carry_le_one
 #print axioms SchreierUnified.wordCount_certificate
+
+#print SchreierUnified.IsTerminalComposition
+#print SchreierUnified.HasEventualRecurrence
+#check SchreierUnified.originalTerminalCompositionEquiv
+#check SchreierUnified.wordSeries_eq_familySeries
+#check SchreierUnified.wordSeries_equation
+#check SchreierUnified.seriesResidue_unique
+#check SchreierUnified.generatingFunctions2
+#check SchreierUnified.generatingFunctions3
+#check SchreierUnified.generatingFunctions4
+#check SchreierUnified.coefficient_extraction
+#check SchreierUnified.eventualRecurrence_iff_polynomial_multiplier
+#check SchreierUnified.denominator_degree_lower_bound
+#check SchreierUnified.original_minimal_orders
+
+#check (SchreierUnified.originalTerminalCompositionEquiv : ∀ q r N, 0 < q → r < q →
+  {F // F ∈ SchreierUnified.family q r (N + 1)} ≃
+    {c : List ℕ // SchreierUnified.IsTerminalComposition q
+      (q * (N + 1) + q - 1 - r) c})
+
+#print axioms SchreierUnified.originalTerminalCompositionEquiv
+#print axioms SchreierUnified.wordSeries_eq_familySeries
+#print axioms SchreierUnified.wordSeries_equation
+#print axioms SchreierUnified.seriesResidue_unique
+#print axioms SchreierUnified.generatingFunctions2
+#print axioms SchreierUnified.generatingFunctions3
+#print axioms SchreierUnified.generatingFunctions4
+#print axioms SchreierUnified.coefficient_extraction
+#print axioms SchreierUnified.eventualRecurrence_iff_polynomial_multiplier
+#print axioms SchreierUnified.denominator_degree_lower_bound
+#print axioms SchreierUnified.original_minimal_orders

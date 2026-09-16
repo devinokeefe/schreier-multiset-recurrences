@@ -18,8 +18,11 @@ formal statements from arguments proved in the article.
 | Uniqueness of coefficient solution | `ResidueEquation`, `residue_unique`, `wordCount_certificate` | Compiled |
 | All nine polynomial rows | `certificate_q2`, `certificate_q3`, `certificate_q4` | Compiled |
 | Last-digit multiset transformation | `appendMap`, `decode_append`, `appendMap_encode`, `encode_appendMap` | Compiled |
-| General terminal-composition bijection (Proposition 5.1) | Article proof; `terminalComposition` defines only the map | Ordinary proof; q3 special case formalized |
-| Formal-series division/extraction and minimal orders 3,5,5 | Propositions 3.1 and 4.1, proof of Theorem 1.1, Corollary 4.2 | Ordinary proofs; no Lean formal-series derivation |
+| General terminal-composition bijection (Proposition 5.1) | `IsTerminalComposition`, `wordTerminalCompositionEquiv`, `originalTerminalCompositionEquiv` | Compiled for every positive q and r < q |
+| Actual formal counting series and unique residue solution | `wordSeries_eq_familySeries`, `wordSeries_equation`, `seriesResidue_unique` | Compiled over the integers |
+| All nine rational generating-function identities | `wordSeries_of_certificate`, `generatingFunctions2`, `generatingFunctions3`, `generatingFunctions4` | Compiled as formal power-series identities |
+| Coefficient extraction, including the initial indices | `recurrencePolynomial_mul_coeff_all`, `coefficient_extraction` | Compiled with negative-index guards |
+| Minimal eventual recurrence orders 3,5,5 (Corollary 4.2) | `eventualRecurrence_iff_polynomial_multiplier`, `denominator_degree_lower_bound`, `original_minimal_orders` | Compiled over the rationals, for arbitrary starting indices |
 
 Unqualified common names in this table have namespace `SchreierUnified`.
 `wordCount_certificate` is a conditional certificate principle: its candidate
@@ -91,12 +94,22 @@ asserted to annihilate the entire operator. The retained
 `SchreierQ4.PolynomialCertificate.kernel_certificate` is an alternative finite algebra
 certificate, not an additional assumption in the original-object endpoint.
 
-The three closed endpoints remain in separate module environments.
-The nine common polynomial identities and coefficient uniqueness are checked
-separately. The formal recurrence endpoints follow the retained case chains;
-there is no Lean derivation of those endpoints by dividing the common
-polynomials as formal power series. Proposition 5.3 is proved in the article;
-the common Lean layer proves the transformation formulas and word-map
-agreements, and q2 additionally has the six formal restricted bijections.
-General terminal compositions, generating-function extraction, and eventual
-minimality are outside the formalized endpoints.
+The three retained case endpoints remain in separate module environments.
+The common layer additionally constructs the actual counting series in
+`PowerSeries ℤ`, proves the residue system and its unique solution, and
+establishes all nine rational identities using denominators with constant
+coefficient one. `coefficient_extraction` proves the coefficient equation
+at every index; the retained case proofs of the explicit initial values
+and recurrences remain independent of this formal-series derivation.
+
+`HasEventualRecurrence` is defined directly on sequence coefficients, with
+an arbitrary starting index and current-term coefficient one. The equivalence
+with a polynomial multiplier is proved, not included in the definition.
+Explicit Bezout identities force every such multiplier to be divisible by
+the displayed denominator. `original_minimal_orders` states both attainment
+and the lower bounds 3, 5, 5 for the original families over the rationals.
+The sequences are indexed by maximum `N+1`, consistently with the paper.
+
+Proposition 5.3 is proved in the article; the common Lean layer proves the
+transformation formulas and word-map agreements, and q2 additionally has
+the six formal restricted bijections.
