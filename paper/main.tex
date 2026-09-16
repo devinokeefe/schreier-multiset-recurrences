@@ -498,12 +498,14 @@ but in general give different words and different multisets.
 
 Formal proofs of Theorems~\ref{thm:main} and~\ref{thm:encoding} accompany
 this paper in Lean~4 \cite{Lean4}, using the mathematical library mathlib
-\cite{Mathlib}. The development also verifies the finite residue partition,
-uniqueness of its coefficient solution, the nine polynomial identities,
-and the correspondence with the three case constructions.
-The general terminal-composition theorem and the generating-function
-arguments, including minimality of the recurrence orders, are proved
-above but are outside the formalisation. The supplementary material
+\cite{Mathlib}. The development also verifies the general terminal-composition
+bijection, the finite residue partition, and the correspondence with
+the three case constructions. The formal-power-series development
+constructs the actual counting series, proves uniqueness of the residue
+solution and all nine rational identities, and verifies coefficient
+extraction at every index. It also proves the exact minimal eventual
+recurrence orders over the rationals, allowing arbitrary starting
+indices. The supplementary material
 contains the source code, a correspondence between the mathematical
 statements and Lean declarations, and instructions for reproducing
 the formal and computational checks.

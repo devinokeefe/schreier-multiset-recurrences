@@ -30,6 +30,9 @@ Start with the common argument:
 - [Words.lean](formal/common/SchreierUnified/Words.lean): words, cost, and residue partitions.
 - [Multisets.lean](formal/common/SchreierUnified/Multisets.lean): encoding and inverse laws.
 - [Certificates.lean](formal/common/SchreierUnified/Certificates.lean): uniqueness and polynomial identities.
+- [TerminalCompositions.lean](formal/common/SchreierUnified/TerminalCompositions.lean): the general composition equivalence, including q = 1.
+- [GeneratingFunctions.lean](formal/common/SchreierUnified/GeneratingFunctions.lean): actual counting series, uniqueness, and all nine rational identities.
+- [Minimality.lean](formal/common/SchreierUnified/Minimality.lean): coefficient extraction and exact eventual recurrence orders over the rationals.
 
 The recurrence endpoints are in [q = 2](formal/cases/q2/lean/SchreierQ2/Counting.lean),
 [q = 3](formal/cases/q3/lean/Main.lean), and [q = 4](formal/cases/q4/lean/SchreierQ4/Main.lean).
@@ -37,9 +40,12 @@ The [adapters](formal/adapters) compare the case constructions with the common m
 
 Lean verifies the common encoding, the three recurrence theorems, the residue
 partition and coefficient uniqueness, the polynomial identities, and the
-specified comparisons between constructions. The general terminal-composition
-theorem, formal-power-series arguments, and minimal-order result are proved
-in the paper. The q = 3 composition correspondence is also formalized.
+specified comparisons between constructions. It also verifies the general
+terminal-composition equivalence, the formal-power-series arguments and
+coefficient extraction at every index, and the exact eventual recurrence
+orders 3, 5, 5 over the rationals. These results use the original multiset
+families, via the proved word-count equivalence; no counting bridge or
+recurrence is assumed. The retained q = 3 composition proof remains available.
 
 ## Reproduce the results
 
@@ -59,8 +65,9 @@ microtype, xurl, hyperref and the amsplain bibliography style. Poppler's
 required. An explicit Tectonic executable can be supplied with `--tectonic PATH`.
 
 `deps` fetches the pinned mathlib dependencies and their upstream caches.
-The validator compiles 41 modules in fresh snapshots, checks 193 transitive
-axiom reports, and runs the 15 default declaration linters. The only permitted
+The validator compiles every common, case, and adapter module in fresh
+snapshots, checks all requested transitive axiom reports, and runs the
+15 default declaration linters. The only permitted
 axioms are `propext`, `Classical.choice` and `Quot.sound`. The upstream cache
 is a trusted input, checked for changes but not rebuilt. Finite computation
 is a diagnostic and does not replace the mathematical proofs.
