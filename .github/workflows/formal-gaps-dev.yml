@@ -3,6 +3,7 @@ name: Formal gaps development
 on:
   push:
     branches: [formalize-remaining-gaps]
+    paths: ['.github/workflows/formal-gaps-dev.yml']
 
 permissions:
   contents: read
@@ -24,11 +25,9 @@ jobs:
           lint: 'false'
           use-mathlib-cache: 'false'
           use-github-cache: 'false'
-      - name: Fetch pinned cache and check proofs
+      - name: Fetch pinned cache
         working-directory: formal/common
-        run: |
-          lake exe cache get
-          lake build
+        run: lake exe cache get
       - name: Package offline proof-checking environment
         run: |
           tar --use-compress-program='zstd -T2 -3' \
@@ -36,6 +35,7 @@ jobs:
             -cf /tmp/proof-environment.tar.zst \
             -C "$HOME/.elan" toolchains \
             -C "$GITHUB_WORKSPACE" formal scripts paper docs README.md SOURCES.tsv
+          ls -lh /tmp/proof-environment.tar.zst
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: proof-environment
