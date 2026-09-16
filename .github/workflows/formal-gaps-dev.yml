@@ -1,0 +1,44 @@
+name: Formal gaps development
+
+on:
+  push:
+    branches: [formalize-remaining-gaps]
+
+permissions:
+  contents: read
+
+jobs:
+  proofs:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: leanprover/lean-action@50fcf42d2e460296f1a34b402e990d1b24f8b596
+        with:
+          lake-package-directory: formal/common
+          auto-config: 'false'
+          build: 'false'
+          test: 'false'
+          lint: 'false'
+          use-mathlib-cache: 'false'
+          use-github-cache: 'false'
+      - name: Fetch pinned cache and check proofs
+        working-directory: formal/common
+        run: |
+          lake exe cache get
+          lake build
+      - name: Package offline proof-checking environment
+        run: |
+          tar --use-compress-program='zstd -T2 -3' \
+            --exclude='.git' --exclude='*.a' --exclude='*.o' --exclude='*.c' \
+            -cf /tmp/proof-environment.tar.zst \
+            -C "$HOME/.elan" toolchains \
+            -C "$GITHUB_WORKSPACE" formal scripts paper docs README.md SOURCES.tsv
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: proof-environment
+          path: /tmp/proof-environment.tar.zst
+          compression-level: 0
+          retention-days: 1
