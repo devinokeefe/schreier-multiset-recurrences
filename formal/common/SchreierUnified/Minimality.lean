@@ -26,7 +26,7 @@ def recurrencePolynomial (c : ℕ → ℚ) (d : ℕ) : Polynomial ℚ :=
 
 theorem recurrencePolynomial_coeff (c : ℕ → ℚ) (d n : ℕ) :
     (recurrencePolynomial c d).coeff n = if n ≤ d then c n else 0 := by
-  simp [recurrencePolynomial, Polynomial.coeff_C_mul_X_pow, Nat.lt_succ_iff]
+  simp [recurrencePolynomial]
 
 theorem recurrencePolynomial_degree (c : ℕ → ℚ) (d : ℕ) :
     (recurrencePolynomial c d).natDegree ≤ d := by
@@ -48,6 +48,25 @@ theorem recurrencePolynomial_coe (c : ℕ → ℚ) (d : ℕ) :
   change Polynomial.coeToPowerSeries.ringHom (recurrencePolynomial c d) = _
   simp [recurrencePolynomial]
 
+/-- Coefficient extraction at every index, including indices below the degree.
+The guards implement the convention that negative-index coefficients vanish. -/
+theorem recurrencePolynomial_mul_coeff_all (c : ℕ → ℚ) (d n : ℕ)
+    (F : PowerSeries ℚ) :
+    PowerSeries.coeff n ((recurrencePolynomial c d : PowerSeries ℚ) * F) =
+      ∑ i ∈ Finset.range (d + 1),
+        if i ≤ n then c i * PowerSeries.coeff (n - i) F else 0 := by
+  rw [recurrencePolynomial_coe, Finset.sum_mul]
+  simp only [map_sum, mul_assoc, PowerSeries.coeff_C_mul,
+    PowerSeries.coeff_X_pow_mul', mul_ite, mul_zero]
+
+/-- The coefficient equation used for both the initial values and the tail. -/
+theorem coefficient_extraction (D N : Polynomial ℚ) (F : PowerSeries ℚ)
+    (d n : ℕ) (hd : D.natDegree ≤ d) (h : (D : PowerSeries ℚ) * F = N) :
+    (∑ i ∈ Finset.range (d + 1),
+      if i ≤ n then D.coeff i * PowerSeries.coeff (n - i) F else 0) = N.coeff n := by
+  rw [← recurrencePolynomial_mul_coeff_all, recurrencePolynomial_reconstruct D d hd,
+    h, Polynomial.coeff_coe]
+
 /-- Coefficient extraction, without any assumption that the recurrence holds. -/
 theorem recurrencePolynomial_mul_coeff (c : ℕ → ℚ) (d n : ℕ)
     (F : PowerSeries ℚ) (hn : d ≤ n) :
@@ -57,7 +76,7 @@ theorem recurrencePolynomial_mul_coeff (c : ℕ → ℚ) (d n : ℕ)
   simp only [map_sum, mul_assoc, PowerSeries.coeff_C_mul]
   apply Finset.sum_congr rfl
   intro i hi
-  rw [PowerSeries.coeff_X_pow_mul', if_pos (by have := Finset.mem_range.mp hi; omega)]
+  rw [PowerSeries.coeff_X_pow_mul', ite_eq_left (by have := Finset.mem_range.mp hi; omega)]
 
 /-- A series whose coefficients eventually vanish is an actual polynomial. -/
 theorem polynomial_of_eventually_zero (F : PowerSeries ℚ) (B : ℕ)
@@ -118,12 +137,12 @@ theorem denominator_degree_lower_bound (F : PowerSeries ℚ)
     (hrec : HasEventualRecurrence (fun n => PowerSeries.coeff n F) d) :
     D.natDegree ≤ d := by
   obtain ⟨R, P, hR, hd, hRP⟩ := (eventualRecurrence_iff_polynomial_multiplier F d).mp hrec
-  have hne : R ≠ 0 := by intro h; simpa [h] using hR
+  have hne : R ≠ 0 := by intro h; simp [h] at hR
   exact (Polynomial.natDegree_le_of_dvd
     (denominator_dvd_multiplier F D N U V R P hbez hDN hRP) hne).trans hd
 
 /-- Rational coefficients of the same independently counted word family. -/
-def rationalWordSeries (q : ℕ) : PowerSeries ℚ :=
+def rationalWordSeries (q : ℕ) : PowerSeries ℚ) :=
   PowerSeries.map (Int.castRingHom ℚ) (wordSeries q 0)
 
 @[simp] theorem coeff_rationalWordSeries (q n : ℕ) :
@@ -134,19 +153,22 @@ theorem rational_identity2 :
     ((D2 Polynomial.X : Polynomial ℚ) : PowerSeries ℚ) * rationalWordSeries 2 =
       ((1 + Polynomial.X : Polynomial ℚ) : PowerSeries ℚ) := by
   have h := congrArg (PowerSeries.map (Int.castRingHom ℚ)) D2_mul_wordSeries
-  simpa [rationalWordSeries, D2] using h
+  norm_num [rationalWordSeries, D2] at h ⊢
+  exact h
 
 theorem rational_identity3 :
     ((D3 Polynomial.X : Polynomial ℚ) : PowerSeries ℚ) * rationalWordSeries 3 =
       ((1 : Polynomial ℚ) : PowerSeries ℚ) := by
   have h := congrArg (PowerSeries.map (Int.castRingHom ℚ)) D3_mul_wordSeries
-  simpa [rationalWordSeries, D3] using h
+  norm_num [rationalWordSeries, D3] at h ⊢
+  exact h
 
 theorem rational_identity4 :
     ((D4 Polynomial.X : Polynomial ℚ) : PowerSeries ℚ) * rationalWordSeries 4 =
       ((N40 Polynomial.X : Polynomial ℚ) : PowerSeries ℚ) := by
   have h := congrArg (PowerSeries.map (Int.castRingHom ℚ)) D4_mul_wordSeries
-  simpa [rationalWordSeries, D4, N40] using h
+  norm_num [rationalWordSeries, D4, N40] at h ⊢
+  exact h
 
 /-- Explicit coprimality certificate for q = 2. -/
 theorem bezout2 :
@@ -155,24 +177,37 @@ theorem bezout2 :
   dsimp [D2]
   ring
 
-/-- Explicit coprimality certificate for q = 4. -/
-theorem bezout4 :
-    ((28/81 : ℚ) • (Polynomial.X : Polynomial ℚ)^4 +
-      (40/81 : ℚ) • Polynomial.X^3 + (38/81 : ℚ) • Polynomial.X^2 -
-      (152/81 : ℚ) • Polynomial.X + Polynomial.C (113/81)) * N40 Polynomial.X +
-      ((56/81 : ℚ) • Polynomial.X - Polynomial.C (32/81)) * D4 Polynomial.X = 1 := by
+/-- Integral form of the q = 4 Bezout certificate. -/
+theorem bezout4_integral :
+    (28 * (Polynomial.X : Polynomial ℚ)^4 + 40 * Polynomial.X^3 +
+      38 * Polynomial.X^2 - 152 * Polynomial.X + 113) * N40 Polynomial.X +
+      (56 * Polynomial.X - 32) * D4 Polynomial.X = 81 := by
   dsimp [D4, N40]
-  simp only [Polynomial.smul_eq_C_mul]
   ring
 
+/-- Explicit coprimality certificate for q = 4. -/
+theorem bezout4 :
+    ((1/81 : ℚ) • (28 * (Polynomial.X : Polynomial ℚ)^4 +
+      40 * Polynomial.X^3 + 38 * Polynomial.X^2 - 152 * Polynomial.X + 113)) *
+      N40 Polynomial.X +
+      ((1/81 : ℚ) • (56 * Polynomial.X - 32)) * D4 Polynomial.X = 1 := by
+  rw [smul_mul_assoc, smul_mul_assoc, ← smul_add, bezout4_integral]
+  have h81 : (81 : Polynomial ℚ) = (81 : ℚ) • (1 : Polynomial ℚ) := by
+    norm_num [Polynomial.smul_eq_C_mul]
+  rw [h81, smul_smul]
+  norm_num
+
 theorem degree_D2 : (D2 (Polynomial.X : Polynomial ℚ)).natDegree = 3 := by
-  compute_degree
+  unfold D2
+  compute_degree!
 
 theorem degree_D3 : (D3 (Polynomial.X : Polynomial ℚ)).natDegree = 5 := by
-  compute_degree
+  unfold D3
+  compute_degree!
 
 theorem degree_D4 : (D4 (Polynomial.X : Polynomial ℚ)).natDegree = 5 := by
-  compute_degree
+  unfold D4
+  compute_degree!
 
 /-- The minimal eventual order for q = 2 is exactly three. -/
 theorem minimal_order2 :
@@ -229,6 +264,7 @@ theorem original_minimal_orders :
     family_card_eq_wordCount 4 0 _ (by decide)] using
       And.intro minimal_order2 (And.intro minimal_order3 minimal_order4)
 
+#print axioms SchreierUnified.coefficient_extraction
 #print axioms SchreierUnified.eventualRecurrence_iff_polynomial_multiplier
 #print axioms SchreierUnified.original_minimal_orders
 
