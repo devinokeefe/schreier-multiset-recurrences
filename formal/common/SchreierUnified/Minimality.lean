@@ -142,7 +142,7 @@ theorem denominator_degree_lower_bound (F : PowerSeries ℚ)
     (denominator_dvd_multiplier F D N U V R P hbez hDN hRP) hne).trans hd
 
 /-- Rational coefficients of the same independently counted word family. -/
-def rationalWordSeries (q : ℕ) : PowerSeries ℚ) :=
+def rationalWordSeries (q : ℕ) : PowerSeries ℚ :=
   PowerSeries.map (Int.castRingHom ℚ) (wordSeries q 0)
 
 @[simp] theorem coeff_rationalWordSeries (q n : ℕ) :
