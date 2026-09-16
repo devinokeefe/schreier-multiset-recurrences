@@ -34,11 +34,54 @@ jobs:
             --exclude='.git' --exclude='*.a' --exclude='*.o' --exclude='*.c' \
             -cf /tmp/proof-environment.tar.zst \
             -C "$HOME/.elan" toolchains \
-            -C "$GITHUB_WORKSPACE" formal scripts paper docs README.md SOURCES.tsv
-          ls -lh /tmp/proof-environment.tar.zst
+            -C "$GITHUB_WORKSPACE" .
+          split -b 440M -d /tmp/proof-environment.tar.zst /tmp/proof-part-
+          ls -lh /tmp/proof-part-*
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: proof-environment
-          path: /tmp/proof-environment.tar.zst
+          name: proof-part-00
+          path: /tmp/proof-part-00
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: proof-part-01
+          path: /tmp/proof-part-01
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: proof-part-02
+          path: /tmp/proof-part-02
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: proof-part-03
+          path: /tmp/proof-part-03
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: proof-part-04
+          path: /tmp/proof-part-04
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: proof-part-05
+          path: /tmp/proof-part-05
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: proof-part-06
+          path: /tmp/proof-part-06
+          compression-level: 0
+          retention-days: 1
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: proof-part-07
+          path: /tmp/proof-part-07
           compression-level: 0
           retention-days: 1
