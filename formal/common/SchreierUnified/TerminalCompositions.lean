@@ -53,7 +53,7 @@ theorem unshifted_shifted (q : ℕ) (w : Word) :
       congr 1
       apply Fin.ext
       change (q + d.val - q) % 3 = d.val
-      simpa using Nat.mod_eq_of_lt d.isLt
+      simp
 
 theorem append_last_injective {α : Type*} {p s : List α} {t u : α}
     (h : p ++ [t] = s ++ [u]) : p = s ∧ t = u := by
@@ -90,7 +90,8 @@ theorem terminalComposition_mem (q r N : ℕ) (hq : 0 < q) (hr : r < q)
     have huadd := Nat.sub_add_cancel (show u ≤ 2 * q - 1 by omega)
     have hqadd := Nat.sub_add_cancel (show 1 ≤ 2 * q by omega)
     have hsum1 := Nat.sub_add_cancel (show 1 ≤ q * (N + 1) + q by omega)
-    have hsum2 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 by omega)
+    have hsum2 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 - r + r by omega)
+    have hsum3 := Nat.sub_add_cancel (show r ≤ q * (N + 1) + q - 1 by omega)
     dsimp [u] at *
     nlinarith
 
