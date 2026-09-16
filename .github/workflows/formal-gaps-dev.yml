@@ -1,12 +1,18 @@
-name: Formal gaps development
+name: Validate remaining formalization gaps
 
 on:
   push:
     branches: [formalize-remaining-gaps]
-    paths: ['.github/workflows/formal-gaps-dev.yml']
+    paths:
+      - '.github/workflows/formal-gaps-dev.yml'
+      - 'formal/common/**'
 
 permissions:
   contents: read
+
+concurrency:
+  group: formal-gaps-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   proofs:
@@ -25,63 +31,39 @@ jobs:
           lint: 'false'
           use-mathlib-cache: 'false'
           use-github-cache: 'false'
+      - name: Restore pinned dependencies
+        uses: actions/cache/restore@caa296126883cff596d87d8935842f9db880ef25
+        with:
+          path: formal/common/.lake/packages
+          key: formal-gaps-deps-141f6b6455959bfeb0b2a6b04118031191d62683
       - name: Fetch pinned cache
         working-directory: formal/common
         run: lake exe cache get
-      - name: Package offline proof-checking environment
+      - name: Check all common modules with the Lean kernel
+        working-directory: formal/common
         run: |
-          tar --use-compress-program='zstd -T2 -3' \
-            --exclude='.git' --exclude='*.a' --exclude='*.o' --exclude='*.c' \
-            -cf /tmp/proof-environment.tar.zst \
-            -C "$HOME/.elan" toolchains \
-            -C "$GITHUB_WORKSPACE" .
-          split -b 440M -d /tmp/proof-environment.tar.zst /tmp/proof-part-
-          ls -lh /tmp/proof-part-*
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+          mkdir -p .lake/build/lib/lean/SchreierUnified .build
+          status=0
+          for module in Words Certificates Multisets TerminalCompositions GeneratingFunctions Minimality Audit; do
+            echo "===== $module ====="
+            if ! lake env lean -DautoImplicit=false -DmaxHeartbeats=3000000 -DmaxRecDepth=4096 \
+                -o ".lake/build/lib/lean/SchreierUnified/$module.olean" \
+                "SchreierUnified/$module.lean" 2>&1 | tee ".build/$module.log"; then
+              status=1
+            fi
+          done
+          if grep -R 'sorryAx' .build/*.log; then status=1; fi
+          exit "$status"
+      - name: Save pinned dependencies
+        if: always()
+        uses: actions/cache/save@caa296126883cff596d87d8935842f9db880ef25
         with:
-          name: proof-part-00
-          path: /tmp/proof-part-00
-          compression-level: 0
-          retention-days: 1
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+          path: formal/common/.lake/packages
+          key: formal-gaps-deps-141f6b6455959bfeb0b2a6b04118031191d62683
+      - name: Upload kernel-check logs
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: proof-part-01
-          path: /tmp/proof-part-01
-          compression-level: 0
-          retention-days: 1
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: proof-part-02
-          path: /tmp/proof-part-02
-          compression-level: 0
-          retention-days: 1
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: proof-part-03
-          path: /tmp/proof-part-03
-          compression-level: 0
-          retention-days: 1
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: proof-part-04
-          path: /tmp/proof-part-04
-          compression-level: 0
-          retention-days: 1
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: proof-part-05
-          path: /tmp/proof-part-05
-          compression-level: 0
-          retention-days: 1
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: proof-part-06
-          path: /tmp/proof-part-06
-          compression-level: 0
-          retention-days: 1
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: proof-part-07
-          path: /tmp/proof-part-07
-          compression-level: 0
-          retention-days: 1
+          name: formal-gap-checks-${{ github.sha }}
+          path: formal/common/.build/*.log
+          retention-days: 14
